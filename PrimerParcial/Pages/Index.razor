@@ -1,0 +1,145 @@
+﻿@page "/"
+@inject PersonaService service
+
+<h1>Toque de Queda</h1>
+
+
+<div class="row m-5">
+    <div class="col-5 bg-light m-2 justify-content-start">
+        <div class="p-3 mb-3 bg-primary text-white text-center">Registro</div>
+        <EditForm Model="@NewPersona">
+            <fieldset>
+                <legend>Persona</legend>
+
+                <div class="form-group">
+                    <label for="nombre">Cedula</label>
+                    <div class="input-group">
+                        <div class="custom-file">
+                            <input type="text" class="form-control" @bind-value="@NewPersona.Persona.Cedula" />
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @onclick="BuscarPersona"><span class="oi oi-magnifying-glass"></span></button>
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" class="form-control" disabled  @bind-value="@NewPersona.Persona.Nombre" />
+                </div>
+
+                <div class="form-group">
+                    <label for="apellido">Apellido</label>
+                    <input type="text" class="form-control" disabled @bind-value="@NewPersona.Persona.Apellido" />
+                </div>
+
+                <div class="form-group">
+                    <label for="lugar">Lugar</label>
+                    <input type="text" class="form-control" @bind-value="@NewPersona.Persona.Lugar" />
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" @onchange="(e) => { TieneVehiculoChange(e.Value); }">
+                    <label class="form-check-label" for="defaultCheck1">
+                        Tiene Vehiculo?
+                    </label>
+                </div>
+
+            </fieldset>
+
+            <fieldset style="@(TieneVehiculo?"": "display:none")">
+                <legend>Vehiculo</legend>
+
+
+                <div class="form-group">
+                    <label for="placa">Placa</label>
+                    <input type="text" class="form-control" @bind-value="@NewPersona.Vehiculo.Placa" />
+                </div>
+
+
+                <div class="form-group">
+                    <label for="marca">Marca</label>
+                    <input type="text" class="form-control" @bind-value="@NewPersona.Vehiculo.Marca" />
+                </div>
+
+
+                <div class="form-group">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" class="form-control" @bind-value="@NewPersona.Vehiculo.Modelo" />
+                </div>
+
+
+                <div class="form-group">
+                    <label for="color">Color</label>
+                    <input type="text" class="form-control" @bind-value="@NewPersona.Vehiculo.Color" />
+                </div>
+
+
+                <div class="form-group">
+                    <label for="descripcion">Descripcion</label>
+                    <input type="text" class="form-control" @bind-value="@NewPersona.Vehiculo.Descripcion" />
+                </div>
+
+            </fieldset>
+
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <button type="submit" class="btn btn-primary" @onclick="GuardarRegistro">Guardar</button>
+                </div>
+
+                <div class="col-sm-4">
+                    <button type="submit" class="btn btn-danger" @onclick="Cancelar">Cancelar</button>
+
+                </div>
+
+
+            </div>
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    ToqueDeQuedaModel NewPersona { get; set; } = new ToqueDeQuedaModel();
+    bool TieneVehiculo { get; set; } = false;
+
+    public void TieneVehiculoChange(object e)
+    {
+        TieneVehiculo = (bool)e;
+    }
+
+    public void GuardarRegistro()
+    {
+        NewPersona.TieneVehiculo = TieneVehiculo;
+        service.AgregarPersona(NewPersona);
+    }
+
+    public async Task BuscarPersona()
+    {
+
+        PersonaApiViewModel persona = await service.GetPersonaFromApi($"https://api.adamix.net/apec/cedula/{NewPersona.Persona.Cedula}");
+        if (persona != null)
+        {
+            NewPersona.Persona.Nombre = persona.Nombres;
+            NewPersona.Persona.Apellido = $"{persona.Apellido1} {persona.Apellido2}";
+        }
+
+    }
+
+    public void Cancelar()
+    {
+        NewPersona.Persona.Nombre = "";
+        NewPersona.Persona.Apellido = "";
+        NewPersona.Persona.Cedula = "";
+        NewPersona.Persona.Lugar = "";
+        NewPersona.Vehiculo.Placa = "";
+        NewPersona.Vehiculo.Descripcion = "";
+        NewPersona.Vehiculo.Color = "";
+        NewPersona.Vehiculo.Marca = "";
+        NewPersona.Vehiculo.Modelo = "";
+    }
+
+
+}

@@ -1,0 +1,41 @@
+﻿@page "/lista"
+@inject PersonaService service
+@inject NavigationManager NavManager
+
+<h1>Lista de Personas</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Cedula</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Lugar</th>
+            <th scope="col">Tiene Vehiculo </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in service.GetPersona())
+        {
+            <tr>
+                <td>@item.Cedula</td>
+                <td>@item.Nombre</td>
+                <td>@item.Apellido</td>
+                <td>@item.Lugar</td>
+                <td>@(item.Vehiculo!=null? "Si": "No")</td>
+                <td><button class="btn btn-outline-secondary" type="button" @onclick="() => Eliminar(item.Id)"><span class="oi oi-delete"></span></button></td>
+
+            </tr>
+
+        }
+    </tbody>
+</table>
+@code {
+
+    public void Eliminar(int id)
+    {
+        service.EliminarPersonas(id);
+        NavManager.NavigateTo("/lista");
+    }
+}
